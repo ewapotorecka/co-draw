@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
-import useDrawing from "../hooks/useDrawing";
+import useDetectDrawing from "../hooks/useDetectDrawing";
 import useSockets from "../hooks/useSockets";
+import { Coordinate } from "../interfaces/Coordinate";
 import { DrawingData } from "../interfaces/DrawingData";
 import { draw } from "../utils/drawing-utils";
 import Toolbar from "./Toolbar";
 
 function DrawingBoard() {
-  const ref = useRef(null);
+  const canvasRef = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 
   const sendDrawingEvent = useSockets<DrawingData>({
@@ -26,11 +27,22 @@ function DrawingBoard() {
     dashed: false,
   });
 
-  const { onMouseLeave, onMouseEnter, onMouseMove } = useDrawing({
+  const { onMouseLeave, onMouseEnter, onMouseMove } = useDetectDrawing({
     ctx,
-    style,
-    onDrawing: sendDrawingEvent,
+    onDraw: handleDrawing,
   });
+
+  function handleDrawing(coordinates: Coordinate[]) {
+    const data: DrawingData = {
+      coordinates,
+      style,
+    };
+
+    if (ctx) {
+      sendDrawingEvent(data);
+      draw(ctx, data);
+    }
+  }
 
   function clearCanvasFromRemote() {
     if (!ctx) return;
@@ -44,7 +56,7 @@ function DrawingBoard() {
   }
 
   useEffect(() => {
-    const canvas = ref.current as HTMLCanvasElement | null;
+    const canvas = canvasRef.current as HTMLCanvasElement | null;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
@@ -66,7 +78,7 @@ function DrawingBoard() {
         id="canvas"
         width="1000"
         height="500"
-        ref={ref}
+        ref={canvasRef}
         onMouseLeave={onMouseLeave}
         onMouseEnter={onMouseEnter}
         onMouseMove={onMouseMove}
