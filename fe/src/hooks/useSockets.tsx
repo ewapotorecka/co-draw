@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 
 import { io, Socket } from "socket.io-client";
+import { Coordinate } from "../interfaces/Coordinates";
 
-const SocketTest = () => {
+const useSockets = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [receivedData, setReceivedData] = useState<Coordinate[]>([]);
 
   useEffect(() => {
     const newSocket = io("http://localhost:4000");
@@ -13,28 +15,26 @@ const SocketTest = () => {
     };
   }, []);
 
-  const sendMessage = () => {
-    console.log("Button clicked");
-
-    if (socket)
+  const sendMessage = (coordinates: Coordinate[]) => {
+    if (socket) {
       socket.emit("send_message", {
-        message: "Hello from a different universe",
+        message: coordinates,
       });
+    }
   };
 
   useEffect(() => {
     if (socket) {
       socket.on("receive_message", (data) => {
-        alert(data.message);
+        setReceivedData(data.message);
       });
     }
   }, [socket]);
 
-  return (
-    <>
-      <button onClick={sendMessage}>Send hello</button>
-    </>
-  );
+  return {
+    sendMessage,
+    receivedData,
+  };
 };
 
-export default SocketTest;
+export default useSockets;
