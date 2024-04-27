@@ -1,15 +1,4 @@
-import { Coordinate } from "../interfaces/Coordinate";
 import { DrawingData } from "../interfaces/DrawingData";
-
-const startDrawing = (
-  ctx: CanvasRenderingContext2D,
-  coordinate?: Coordinate
-) => {
-  // ctx.beginPath();
-  // if (coordinate) {
-  //   ctx.moveTo(coordinate.x, coordinate.y);
-  // }
-};
 
 const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
   if (!ctx) return;
@@ -40,8 +29,4 @@ const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
   ctx.closePath();
 };
 
-const finishDrawing = (ctx: CanvasRenderingContext2D) => {
-  // ctx.closePath();
-};
-
-export { draw, finishDrawing, startDrawing };
+export { draw };
