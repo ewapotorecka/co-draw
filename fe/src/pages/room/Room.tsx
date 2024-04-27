@@ -37,7 +37,7 @@ function Room() {
     mouseDown = false;
 
     ctx?.closePath();
-    setSavedCoordinates([...savedCoordinates, ...coordinates]);
+    setSavedCoordinates(coordinates);
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
