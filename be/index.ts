@@ -3,12 +3,12 @@ import express, { Express } from "express";
 import http from "http";
 import { Server } from "socket.io";
 
-const app: Express = express();
-
 // Useful for debugging
 // collaboration conflicts on one computer.
 const BROADCAST_DELAY_TIME = 0;
 const SOCKET_FRONTEND_URL = "http://localhost:3000";
+
+const app: Express = express();
 
 app.use(cors());
 
