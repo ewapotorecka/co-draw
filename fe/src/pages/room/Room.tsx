@@ -11,7 +11,11 @@ function Room() {
   const [strokeColor, setStrokeColor] = useState<string>("#ff0000");
   const [lineWidth, setLineWidth] = useState<number>(3);
   const [savedCoordinates, setSavedCoordinates] = useState<Coordinate[]>([]);
-  const { sendMessage, receivedData } = useSockets();
+  const { sendMessage, receivedData } = useSockets<{
+    coordinates: Coordinate[];
+    lineWidth: number;
+    strokeColor: string;
+  }>();
 
   let coordinates: Coordinate[] = [];
 
@@ -28,14 +32,10 @@ function Room() {
     const y = e.nativeEvent.offsetY;
 
     ctx.moveTo(x, y);
-    ctx.lineCap = "round";
-    ctx.lineWidth = lineWidth;
-    ctx.lineJoin = "round";
   };
 
   const onMouseUp = () => {
     mouseDown = false;
-
     ctx?.closePath();
     setSavedCoordinates(coordinates);
     coordinates = [];
@@ -49,14 +49,20 @@ function Room() {
 
     if (!ctx) return;
 
-    ctx.lineTo(x, y);
     coordinates.push({ x, y });
+
+    ctx.setLineDash([5, 15]);
     ctx.strokeStyle = strokeColor;
+    ctx.lineCap = "round";
+    ctx.lineWidth = lineWidth;
+    ctx.lineJoin = "round";
+
+    ctx.lineTo(x, y);
     ctx.stroke();
-    ctx.moveTo(x, y);
   };
 
-  const onMouseLeave = (e: React.MouseEvent) => {
+  const onMouseLeave = () => {
+    ctx?.closePath();
     mouseDown = false;
   };
 
@@ -77,21 +83,39 @@ function Room() {
   }, []);
 
   useEffect(() => {
-    sendMessage(savedCoordinates);
+    sendMessage({
+      coordinates: savedCoordinates,
+      lineWidth: lineWidth,
+      strokeColor: strokeColor,
+    });
   }, [savedCoordinates]);
 
   useEffect(() => {
-    if (!ctx) return;
-    const startPoint = receivedData[0];
+    if (!ctx || !receivedData) return;
+
+    const { coordinates, lineWidth, strokeColor } = receivedData;
+
+    if (!coordinates.length) return;
+
+    const startPoint = coordinates[0];
+
+    ctx.beginPath();
+
+    ctx.setLineDash([5, 15]);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineCap = "round";
+    ctx.lineWidth = lineWidth;
+    ctx.lineJoin = "round";
+
     ctx.moveTo(startPoint.x, startPoint.y);
 
-    receivedData.forEach((coordinate, index) => {
+    coordinates.forEach((coordinate) => {
       const { x, y } = coordinate;
       ctx.lineTo(x, y);
-      ctx.strokeStyle = strokeColor;
       ctx.stroke();
-      ctx.moveTo(x, y);
     });
+
+    ctx.closePath();
   }, [receivedData]);
 
   return (
