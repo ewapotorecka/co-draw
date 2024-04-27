@@ -121,7 +121,7 @@ function Room() {
   return (
     <div
       style={{
-        backgroundColor: "#EEE",
+        backgroundColor: "#EEEFF0",
         height: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -159,7 +159,8 @@ function Room() {
       >
         <canvas
           style={{
-            border: "1px solid black",
+            boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#FFF",
           }}
           id="canvas"
           width="1000"
