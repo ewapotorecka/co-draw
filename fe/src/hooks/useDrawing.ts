@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 
 import { Coordinate } from "../interfaces/Coordinate";
-import { LineStyle } from "../interfaces/DrawingData";
-import { draw, finishDrawing, startDrawing } from "../utils/drawing-utils";
+import { DrawingData, LineStyle } from "../interfaces/DrawingData";
+import { draw } from "../utils/drawing-utils";
 
 const useDrawing = ({
   ctx,
   style,
-  updateCoordinates,
+  onDrawing,
 }: {
   ctx: CanvasRenderingContext2D | null;
   style: LineStyle;
-  updateCoordinates: (coordinates: Coordinate[]) => void;
+  onDrawing: (data: DrawingData) => void;
 }) => {
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [coordinates, setCoordinates] = useState<Coordinate[]>([]);
@@ -21,29 +21,35 @@ const useDrawing = ({
     if (e.target !== ctx.canvas) return;
 
     setMouseDown(true);
-    startDrawing(ctx, { x: e.offsetX, y: e.offsetY });
+    setCoordinates([{ x: e.offsetX, y: e.offsetY }]);
   };
 
   const onMouseEnter = () => {
     if (!ctx) return;
 
     if (!mouseDown) return;
-    startDrawing(ctx);
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
     if (!mouseDown || !ctx) return;
 
-    setCoordinates([
+    const newCoordinates = [
       ...coordinates,
       {
         x: e.nativeEvent.offsetX,
         y: e.nativeEvent.offsetY,
       },
-    ]);
+    ];
+
+    setCoordinates(newCoordinates);
 
     draw(ctx, {
-      coordinates: coordinates.slice(-2),
+      coordinates: newCoordinates.slice(-2),
+      style,
+    });
+
+    onDrawing({
+      coordinates: newCoordinates.slice(-2),
       style,
     });
   };
@@ -52,16 +58,12 @@ const useDrawing = ({
     if (!ctx) return;
 
     setMouseDown(false);
-    finishDrawing(ctx);
-    updateCoordinates(coordinates);
     setCoordinates([]);
   };
 
   const onMouseLeave = (e: React.MouseEvent) => {
     if (!ctx) return;
 
-    finishDrawing(ctx);
-    updateCoordinates(coordinates);
     setCoordinates([]);
   };
 

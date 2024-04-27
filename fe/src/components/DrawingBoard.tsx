@@ -2,28 +2,46 @@ import { useEffect, useRef, useState } from "react";
 
 import useDrawing from "../hooks/useDrawing";
 import useSockets from "../hooks/useSockets";
-import { Coordinate } from "../interfaces/Coordinate";
 import { DrawingData } from "../interfaces/DrawingData";
-import { draw, finishDrawing, startDrawing } from "../utils/drawing-utils";
-import LineToolbar from "./LineToolbar";
+import { draw } from "../utils/drawing-utils";
+import Toolbar from "./Toolbar";
 
 function DrawingBoard() {
   const ref = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 
-  const [savedCoordinates, setSavedCoordinates] = useState<Coordinate[]>([]);
-  const { sendMessage, receivedData } = useSockets<DrawingData>();
+  const sendDrawingEvent = useSockets<DrawingData>({
+    eventName: "drawing",
+    onEventReceived: (data) => ctx && draw(ctx, data),
+  });
+
+  const clearRemoteCanvas = useSockets<void>({
+    eventName: "clear",
+    onEventReceived: clearCanvasFromRemote,
+  });
+
   const [style, setStyle] = useState({
     lineWidth: 5,
     strokeColor: "#CCCCCC",
-    dashed: true,
+    dashed: false,
   });
 
   const { onMouseLeave, onMouseEnter, onMouseMove } = useDrawing({
     ctx,
     style,
-    updateCoordinates: setSavedCoordinates,
+    onDrawing: sendDrawingEvent,
   });
+
+  function clearCanvasFromRemote() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  function clearCanvasFromLocal() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    clearRemoteCanvas();
+  }
 
   useEffect(() => {
     const canvas = ref.current as HTMLCanvasElement | null;
@@ -33,46 +51,26 @@ function DrawingBoard() {
     setCtx(ctx);
   }, []);
 
-  useEffect(() => {
-    sendMessage({
-      coordinates: savedCoordinates,
-      style,
-    });
-  }, [savedCoordinates]);
-
-  useEffect(() => {
-    if (!ctx || !receivedData) return;
-
-    startDrawing(ctx, receivedData.coordinates[0]);
-    draw(ctx, receivedData);
-    finishDrawing(ctx);
-  }, [receivedData, ctx]);
-
   return (
     <div>
-      <LineToolbar lineStyle={style} onChange={setStyle} />
-      <div
+      <Toolbar
+        lineStyle={style}
+        onChange={setStyle}
+        onClear={clearCanvasFromLocal}
+      />
+      <canvas
         style={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+          backgroundColor: "#FFF",
         }}
-      >
-        <canvas
-          style={{
-            boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#FFF",
-          }}
-          id="canvas"
-          width="1000"
-          height="500"
-          ref={ref}
-          onMouseLeave={onMouseLeave}
-          onMouseEnter={onMouseEnter}
-          onMouseMove={onMouseMove}
-        ></canvas>
-      </div>
+        id="canvas"
+        width="1000"
+        height="500"
+        ref={ref}
+        onMouseLeave={onMouseLeave}
+        onMouseEnter={onMouseEnter}
+        onMouseMove={onMouseMove}
+      ></canvas>
     </div>
   );
 }
