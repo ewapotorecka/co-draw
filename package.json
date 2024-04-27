@@ -1,0 +1,13 @@
+{
+  "name": "co-draw",
+  "workspaces": {
+    "packages": [
+      "fe",
+      "be"
+    ]
+  },
+  "scripts": {
+    "fe:start": "cd fe && npm run start",
+    "be:start": "cd be && npm run dev"
+  }
+}
