@@ -16,7 +16,10 @@ const SocketTest = () => {
   const sendMessage = () => {
     console.log("Button clicked");
 
-    if (socket) socket.emit("send_message", { message: "Hello from client" });
+    if (socket)
+      socket.emit("send_message", {
+        message: "Hello from a different universe",
+      });
   };
 
   useEffect(() => {
@@ -29,8 +32,7 @@ const SocketTest = () => {
 
   return (
     <>
-      <input placeholder="Message" />
-      <button onClick={sendMessage}>click</button>
+      <button onClick={sendMessage}>Send hello</button>
     </>
   );
 };

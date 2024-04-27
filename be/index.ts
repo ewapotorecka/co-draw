@@ -23,11 +23,11 @@ io.on("connection", (socket) => {
   socket.on("send_message", (data) => {
     socket.broadcast.emit("receive_message", data);
     // for testing purposes
-    socket.emit("receive_message", data);
+    // socket.emit("receive_message", data);
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log("🔥: A user disconnected");
   });
 });
 
