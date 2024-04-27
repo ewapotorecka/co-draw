@@ -38,6 +38,7 @@ function Room() {
 
     ctx?.closePath();
     setSavedCoordinates(coordinates);
+    coordinates = [];
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
