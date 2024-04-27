@@ -1,20 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
+import useSockets from "../../hooks/useSockets";
+import { Coordinate } from "../../interfaces/Coordinates";
+
 function Room() {
   const { roomId } = useParams();
   const ref = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const [strokeColor, setStrokeColor] = useState<string>("#ff0000");
   const [lineWidth, setLineWidth] = useState<number>(3);
+  const [savedCoordinates, setSavedCoordinates] = useState<Coordinate[]>([]);
+  const { sendMessage, receivedData } = useSockets();
 
-  useEffect(() => {
-    const canvas = ref.current as HTMLCanvasElement | null;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    setCtx(ctx);
-  }, []);
+  let coordinates: Coordinate[] = [];
 
   let mouseDown = false;
 
@@ -38,6 +37,8 @@ function Room() {
     mouseDown = false;
 
     ctx?.closePath();
+    setSavedCoordinates(coordinates);
+    coordinates = [];
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
@@ -49,6 +50,7 @@ function Room() {
     if (!ctx) return;
 
     ctx.lineTo(x, y);
+    coordinates.push({ x, y });
     ctx.strokeStyle = strokeColor;
     ctx.stroke();
     ctx.moveTo(x, y);
@@ -63,9 +65,34 @@ function Room() {
   };
 
   const onLineWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value, Number(e.target.value));
     setLineWidth(Number(e.target.value));
   };
+
+  useEffect(() => {
+    const canvas = ref.current as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    setCtx(ctx);
+  }, []);
+
+  useEffect(() => {
+    sendMessage(savedCoordinates);
+  }, [savedCoordinates]);
+
+  useEffect(() => {
+    if (!ctx) return;
+    const startPoint = receivedData[0];
+    ctx.moveTo(startPoint.x, startPoint.y);
+
+    receivedData.forEach((coordinate, index) => {
+      const { x, y } = coordinate;
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+      ctx.moveTo(x, y);
+    });
+  }, [receivedData]);
 
   return (
     <div
