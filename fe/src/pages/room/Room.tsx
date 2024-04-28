@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
-import DrawingBoard from "../../components/DrawingBoard";
+import DrawingBoard from "../../components/DrawingBoard/DrawingBoard";
 
 function Room() {
   const { roomId } = useParams();

@@ -16,14 +16,6 @@ const useSockets = <T>({
     receive_message: (data: { eventName: string; data: T }) => void;
   }> | null>(null);
 
-  useEffect(() => {
-    const newSocket = io(SOCKET_SERVER_URL);
-    setSocket(newSocket);
-    return () => {
-      newSocket?.close();
-    };
-  }, []);
-
   const sendEvent = (data: T) => {
     socket?.emit("send_message", {
       eventName: eventName,
@@ -31,11 +23,19 @@ const useSockets = <T>({
     });
   };
 
-  function receiveMessage(data: { eventName: string; data: T }) {
+  const receiveMessage = (data: { eventName: string; data: T }) => {
     if (data.eventName === eventName) {
       onEventReceived(data.data);
     }
-  }
+  };
+
+  useEffect(() => {
+    const newSocket = io(SOCKET_SERVER_URL);
+    setSocket(newSocket);
+    return () => {
+      newSocket?.close();
+    };
+  }, []);
 
   useEffect(() => {
     socket?.on("receive_message", receiveMessage);
