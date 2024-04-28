@@ -7,15 +7,15 @@ import { DrawingData } from "../../interfaces/DrawingData";
 import { draw } from "../../utils/drawing-utils";
 
 const useDrawingBoard = () => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const [style, setStyle] = useState({
     lineWidth: 5,
     strokeColor: "#CCCCCC",
   });
 
-  const { onMouseLeave, onMouseEnter, onMouseMove } = useDetectDrawing({
-    ctx,
+  useDetectDrawing({
+    canvasRef,
     onDraw: handleDrawing,
   });
 
@@ -65,9 +65,6 @@ const useDrawingBoard = () => {
     setStyle,
     clearCanvasFromLocal,
     canvasRef,
-    onMouseEnter,
-    onMouseLeave,
-    onMouseMove,
   };
 };
 

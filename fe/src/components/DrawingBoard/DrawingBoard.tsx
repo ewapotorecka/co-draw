@@ -2,15 +2,8 @@ import Toolbar from "../Toolbar";
 import useDrawingBoard from "./useDrawingBoard";
 
 function DrawingBoard() {
-  const {
-    style,
-    setStyle,
-    clearCanvasFromLocal,
-    canvasRef,
-    onMouseEnter,
-    onMouseLeave,
-    onMouseMove,
-  } = useDrawingBoard();
+  const { style, setStyle, clearCanvasFromLocal, canvasRef } =
+    useDrawingBoard();
 
   return (
     <div>
@@ -28,9 +21,6 @@ function DrawingBoard() {
         width="1000"
         height="500"
         ref={canvasRef}
-        onMouseLeave={onMouseLeave}
-        onMouseEnter={onMouseEnter}
-        onMouseMove={onMouseMove}
       ></canvas>
     </div>
   );
