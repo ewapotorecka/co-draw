@@ -1,16 +1,4 @@
-import { Coordinate } from "../interfaces/Coordinate";
 import { DrawingData } from "../interfaces/DrawingData";
-
-const startDrawing = (
-  ctx: CanvasRenderingContext2D,
-  coordinate?: Coordinate
-) => {
-  ctx.beginPath();
-
-  if (coordinate) {
-    ctx.moveTo(coordinate.x, coordinate.y);
-  }
-};
 
 const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
   if (!ctx) return;
@@ -19,6 +7,9 @@ const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
   const startPoint = coordinates[0];
 
   if (!startPoint) return;
+
+  ctx.beginPath();
+  ctx.moveTo(startPoint.x, startPoint.y);
 
   if (style.dashed) {
     ctx.setLineDash([5, 15]);
@@ -34,10 +25,8 @@ const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
     ctx.lineTo(x, y);
     ctx.stroke();
   });
-};
 
-const finishDrawing = (ctx: CanvasRenderingContext2D) => {
   ctx.closePath();
 };
 
-export { draw, finishDrawing, startDrawing };
+export { draw };

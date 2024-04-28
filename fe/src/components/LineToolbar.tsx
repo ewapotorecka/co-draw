@@ -12,8 +12,6 @@ function LineToolbar({
   const [lineWidth, setLineWidth] = useState<number>(lineStyle.lineWidth);
   const [isDashed, setIsDashed] = useState<boolean>(lineStyle.dashed);
 
-  console.log("lineStyle", lineStyle);
-
   const onStrokeColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStrokeColor(e.target.value);
   };
@@ -33,6 +31,7 @@ function LineToolbar({
   return (
     <div
       style={{
+        flex: 1,
         display: "flex",
         justifyContent: "center",
         margin: "1rem",
@@ -71,7 +70,7 @@ function LineToolbar({
           value={lineWidth}
         />
       </span>
-      <span
+      {/* <span
         style={{
           display: "flex",
           justifyContent: "center",
@@ -87,7 +86,7 @@ function LineToolbar({
           onChange={onDashedChange}
           checked={isDashed}
         />
-      </span>
+      </span> */}
     </div>
   );
 }
