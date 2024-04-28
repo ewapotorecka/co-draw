@@ -8,5 +8,4 @@ export interface DrawingData {
 export interface LineStyle {
   lineWidth: number;
   strokeColor: string;
-  dashed: boolean;
 }

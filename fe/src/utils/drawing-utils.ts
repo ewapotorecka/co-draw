@@ -11,11 +11,6 @@ const draw = (ctx: CanvasRenderingContext2D, data: DrawingData) => {
   ctx.beginPath();
   ctx.moveTo(startPoint.x, startPoint.y);
 
-  if (style.dashed) {
-    ctx.setLineDash([5, 15]);
-  } else {
-    ctx.setLineDash([]);
-  }
   ctx.strokeStyle = style.strokeColor;
   ctx.lineCap = "round";
   ctx.lineWidth = style.lineWidth;

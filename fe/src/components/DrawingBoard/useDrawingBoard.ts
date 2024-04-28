@@ -1,15 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 
-import useDetectDrawing from "../hooks/useDetectDrawing";
-import useSockets from "../hooks/useSockets";
-import { Coordinate } from "../interfaces/Coordinate";
-import { DrawingData } from "../interfaces/DrawingData";
-import { draw } from "../utils/drawing-utils";
-import Toolbar from "./Toolbar";
+import useDetectDrawing from "../../hooks/useDetectDrawing";
+import useSockets from "../../hooks/useSockets";
+import { Coordinate } from "../../interfaces/Coordinate";
+import { DrawingData } from "../../interfaces/DrawingData";
+import { draw } from "../../utils/drawing-utils";
 
-function DrawingBoard() {
+const useDrawingBoard = () => {
   const canvasRef = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const [style, setStyle] = useState({
+    lineWidth: 5,
+    strokeColor: "#CCCCCC",
+  });
+
+  const { onMouseLeave, onMouseEnter, onMouseMove } = useDetectDrawing({
+    ctx,
+    onDraw: handleDrawing,
+  });
 
   const sendDrawingEvent = useSockets<DrawingData>({
     eventName: "drawing",
@@ -19,17 +27,6 @@ function DrawingBoard() {
   const clearRemoteCanvas = useSockets<void>({
     eventName: "clear",
     onEventReceived: clearCanvasFromRemote,
-  });
-
-  const [style, setStyle] = useState({
-    lineWidth: 5,
-    strokeColor: "#CCCCCC",
-    dashed: false,
-  });
-
-  const { onMouseLeave, onMouseEnter, onMouseMove } = useDetectDrawing({
-    ctx,
-    onDraw: handleDrawing,
   });
 
   function handleDrawing(coordinates: Coordinate[]) {
@@ -63,28 +60,15 @@ function DrawingBoard() {
     setCtx(ctx);
   }, []);
 
-  return (
-    <div>
-      <Toolbar
-        lineStyle={style}
-        onChange={setStyle}
-        onClear={clearCanvasFromLocal}
-      />
-      <canvas
-        style={{
-          boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
-          backgroundColor: "#FFF",
-        }}
-        id="canvas"
-        width="1000"
-        height="500"
-        ref={canvasRef}
-        onMouseLeave={onMouseLeave}
-        onMouseEnter={onMouseEnter}
-        onMouseMove={onMouseMove}
-      ></canvas>
-    </div>
-  );
-}
+  return {
+    style,
+    setStyle,
+    clearCanvasFromLocal,
+    canvasRef,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+  };
+};
 
-export default DrawingBoard;
+export default useDrawingBoard;

@@ -10,7 +10,6 @@ function LineToolbar({
 }) {
   const [strokeColor, setStrokeColor] = useState<string>(lineStyle.strokeColor);
   const [lineWidth, setLineWidth] = useState<number>(lineStyle.lineWidth);
-  const [isDashed, setIsDashed] = useState<boolean>(lineStyle.dashed);
 
   const onStrokeColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStrokeColor(e.target.value);
@@ -20,13 +19,9 @@ function LineToolbar({
     setLineWidth(Number(e.target.value));
   };
 
-  const onDashedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsDashed(e.target.checked);
-  };
-
   useEffect(() => {
-    onChange({ lineWidth, strokeColor, dashed: isDashed });
-  }, [strokeColor, lineWidth, isDashed]);
+    onChange({ lineWidth, strokeColor });
+  }, [strokeColor, lineWidth]);
 
   return (
     <div
@@ -70,23 +65,6 @@ function LineToolbar({
           value={lineWidth}
         />
       </span>
-      {/* <span
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <span style={{ userSelect: "none" }}>Dashed</span>
-        <input
-          type="checkbox"
-          min={1}
-          max={10}
-          onChange={onDashedChange}
-          checked={isDashed}
-        />
-      </span> */}
     </div>
   );
 }
