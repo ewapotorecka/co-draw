@@ -3,57 +3,43 @@ import React, { useEffect, useState } from "react";
 import { Coordinate } from "../interfaces/Coordinate";
 
 const useDetectDrawing = ({
-  ctx,
+  canvasRef,
   onDraw,
 }: {
-  ctx: CanvasRenderingContext2D | null;
+  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
   onDraw: (coordinates: Coordinate[]) => void;
 }) => {
   const [mousePressed, setMousePressed] = useState<boolean>(false);
   const [lastCoordinate, setLastCoordinate] = useState<Coordinate | null>(null);
 
   const onMouseDown = (e: MouseEvent) => {
-    if (!ctx) return;
-    if (e.target !== ctx.canvas) return;
+    if (e.target !== canvasRef.current) return;
 
     setMousePressed(true);
     setLastCoordinate({ x: e.offsetX, y: e.offsetY });
   };
 
-  const onMouseEnter = () => {
-    if (!ctx) return;
+  const onMouseMove = (e: MouseEvent) => {
+    const canvasPosition = canvasRef.current?.getBoundingClientRect();
 
-    if (!mousePressed) return;
-  };
+    if (!mousePressed || !canvasPosition) {
+      return;
+    }
 
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!mousePressed || !ctx) return;
-
-    // only the last two coordinates are needed to be stored.
     const newCoordinate = {
-      x: e.nativeEvent.offsetX,
-      y: e.nativeEvent.offsetY,
+      x: e.clientX - canvasPosition.left,
+      y: e.clientY - canvasPosition.top,
     };
 
     setLastCoordinate(newCoordinate);
 
     if (!lastCoordinate) return;
 
-    const coordinates = [lastCoordinate, newCoordinate];
-
-    onDraw(coordinates);
+    onDraw([lastCoordinate, newCoordinate]);
   };
 
   const onMouseUp = () => {
-    if (!ctx) return;
-
     setMousePressed(false);
-    setLastCoordinate(null);
-  };
-
-  const onMouseLeave = (e: React.MouseEvent) => {
-    if (!ctx) return;
-
     setLastCoordinate(null);
   };
 
@@ -63,18 +49,14 @@ const useDetectDrawing = ({
   useEffect(() => {
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove);
 
     return () => {
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("mousemove", onMouseMove);
     };
   });
-
-  return {
-    onMouseLeave,
-    onMouseEnter,
-    onMouseMove,
-  };
 };
 
 export default useDetectDrawing;
